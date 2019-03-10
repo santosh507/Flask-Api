@@ -1,0 +1,8 @@
+.project
+*.pyc
+*.pyo
+*~
+.idea
+.git
+*.log
+*.sql
