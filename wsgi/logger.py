@@ -12,7 +12,7 @@ class Logger(object):
         Defines a logger instantiated with logger name and format.
     """
 
-    def __init__(self, logger_name, log_level=logging.INFO,
+    def __init__(self, logger_name, log_level=logging.DEBUG,
                  format="[%(name)s] [%(pathname)s:%(funcName)s():%(lineno)d] [%(levelname)s] %(message)s"):
         self.log_level = log_level
         self.format = format
@@ -25,26 +25,27 @@ class Logger(object):
 
     @property
     def app_logger_obj(self):
-        stream_format = logging.Formatter(self.format)
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(stream_format)
-        stream_handler.setLevel(self.log_level)
-        file_format = logging.Formatter(
-            "[%(asctime)s] [%(name)s] [%(pathname)s:%(funcName)s():%(lineno)d] [%(levelname)s] %(message)s")
-        file_name = "{}_{}.log".format(self.logger_name, datetime.datetime.today().strftime("%d%m%Y"))
-        abs_path = os.path.abspath(".")
-        file_path = os.path.join(abs_path, "logs", file_name)
-        file_handler = logging.FileHandler(file_path)
-        file_handler.setFormatter(file_format)
-        file_handler.setLevel(logging.DEBUG)
-        self.logger_obj.addHandler(stream_handler)
-        self.logger_obj.addHandler(file_handler)
-        self.logger_obj.setLevel(logging.DEBUG)
         return self.logger_obj
 
     @app_logger_obj.setter
-    def app_logger_obj(self, log_obj):
-        self.logger_obj = log_obj
+    def app_logger_obj(self, log_dir):
+        stream_format = logging.Formatter(self.format)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(stream_format)
+        stream_handler.setLevel(logging.INFO)
+        self.logger_obj.addHandler(stream_handler)
+        if os.path.isdir(log_dir):
+            file_format = logging.Formatter(
+                "[%(asctime)s] [%(name)s] [%(pathname)s:%(funcName)s():%(lineno)d] [%(levelname)s] %(message)s",
+                datefmt="%A %d-%b-%Y %I:%M:%S %p")
+            file_name = "{}_{}.log".format(self.logger_name, datetime.datetime.today().strftime("%d%b%Y"))
+            file_path = os.path.join(log_dir, file_name)
+            file_handler = logging.FileHandler(file_path)
+            file_handler.setFormatter(file_format)
+            file_handler.setLevel(logging.DEBUG)
+            self.logger_obj.addHandler(file_handler)
+        else:
+            self.logger_obj.warn("File Logging Couldn't be enabled as the path %s is not a valid directory", log_dir)
 
     @app_logger_obj.deleter
     def app_logger_obj(self):
