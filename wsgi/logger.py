@@ -46,6 +46,7 @@ class Logger(object):
             self.logger_obj.addHandler(file_handler)
         else:
             self.logger_obj.warn("File Logging Couldn't be enabled as the path %s is not a valid directory", log_dir)
+            self.logger_obj.info("Only Console Logging enabled")
 
     @app_logger_obj.deleter
     def app_logger_obj(self):
