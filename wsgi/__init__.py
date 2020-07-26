@@ -1,9 +1,10 @@
 from flask import Flask
 from wsgi.logger import Logger
-import os
+from wsgi.myApi.url import myApi, urls
 
-app = Flask(__name__)
 
-logger_obj = Logger("my_logger")
-logger_obj.app_logger_obj = os.path.join(os.path.abspath(os.path.curdir), "logs")
-app_logger = logger_obj.app_logger_obj
+def create_app():
+    app = Flask(__name__)
+    app.debug = True
+    app.register_blueprint(myApi, url_prefix='/api')
+    return app

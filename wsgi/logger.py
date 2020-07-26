@@ -51,3 +51,8 @@ class Logger(object):
     @app_logger_obj.deleter
     def app_logger_obj(self):
         del self.logger_obj
+
+
+logger_obj = Logger("my_logger")
+logger_obj.app_logger_obj = os.path.join(os.path.abspath(os.path.curdir), "logs")
+app_logger = logger_obj.app_logger_obj
