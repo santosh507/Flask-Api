@@ -1,5 +1,7 @@
 from wsgi import create_app
+from wsgi.myApi.url import myApi
 
-scope = create_app()
+app = create_app()
+
 if __name__ == '__main__':
-    scope.run()
+    app.run()
