@@ -1,43 +1,49 @@
-from flask import jsonify
+from flask import jsonify, abort
 from wsgi.logger import app_logger
 from wsgi.myApi.models import Employee
 from wsgi import db
 from flask import request
+import sqlalchemy
 
 
-def get_employees():
-    emp_list = Employee.query.all()
-    data = [emp_obj.serialize for emp_obj in emp_list]
-    return jsonify({"status": "success", "data": data})
+def employees():
+    if request.method == "GET":
+        # Get All Employees
+        emp_list = Employee.get_all()
+        data = [emp_obj.serialize for emp_obj in emp_list]
+        return jsonify({"status": "success", "data": data}), 200
+    elif request.method == "POST":
+        # Create New Employee
+        emp_obj = Employee(request.json["emp_id"], request.json["name"], request.json["role"], request.json["salary"])
+        try:
+            emp_obj.save()
+        except sqlalchemy.exc.IntegrityError as ie:
+            return jsonify({"status": "failure", "message": f"{ie.orig}"}), 409
+        return jsonify({"status": "success", "message": f"Employee '{request.json['name']}' added successfully"}), 201
+    abort(404)
 
 
-def get_employee(id):
-    emp_obj = Employee.query.filter_by(id=id).first()
-    return jsonify({"status": "success", "data": emp_obj.serialize})
-
-
-def add_employee():
-    emp_obj = Employee(request.json["emp_id"], request.json["name"], request.json["role"], request.json["salary"])
-    db.session.add(emp_obj)
-    db.session.commit()
-    return jsonify({"status": "success", "message": f"Employee '{request.json['name']}' added successfully"})
-
-
-def update_employee(id):
-    emp_obj = Employee.query.filter_by(id=id).first()
-    emp_obj.name = request.json["name"]
-    emp_obj.salary = request.json["salary"]
-    emp_obj.emp_id = request.json["emp_id"]
-    emp_obj.role = request.json["role"]
-    db.session.commit()
-    return jsonify({"status": "success", "message": f"Employee '{request.json['name']}' updated successfully"})
-
-
-def delete_employee(id):
-    emp_obj = Employee.query.filter_by(id=id).first()
-    db.session.delete(emp_obj)
-    db.session.commit()
-    return jsonify({"status": "success", "message": f"Employee '{emp_obj.name}' deleted successfully"})
+def employee(emp_id):
+    emp_obj = Employee.get_by_id(emp_id)
+    if request.method == "GET":
+        if not emp_obj:
+            return jsonify({"status": "failure", "message": f"Employee with id '{emp_id}' not found "}), 404
+        return jsonify({"status": "success", "data": emp_obj.serialize}), 200
+    if request.method == "PUT":
+        if not emp_obj:
+            return jsonify({"status": "failure", "message": f"Employee with id '{emp_id}' not found for update"}), 404
+        emp_obj.name = request.json["name"]
+        emp_obj.salary = request.json["salary"]
+        emp_obj.emp_id = request.json["emp_id"]
+        emp_obj.role = request.json["role"]
+        db.session.commit()
+        return jsonify({"status": "success", "message": f"Employee with id '{emp_id}' updated successfully"}), 200
+    if request.method == "DELETE":
+        if not emp_obj:
+            return jsonify({"status": "failure", "message": f"Employee with id '{emp_id}' not found for delete"}), 404
+        emp_obj.delete()
+        return jsonify({"status": "success", "message": f"Employee '{emp_obj.name}' deleted successfully"}), 200
+    abort(404)
 
     #
     # class Employee:
