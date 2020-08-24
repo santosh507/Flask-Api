@@ -1,16 +1,20 @@
 import unittest
-from wsgi import create_app, db
+from wsgi import create_app
 from wsgi.myApi.models import Employee
 
 
 class TestMyApi(unittest.TestCase):
     app = create_app()
     client = app.test_client()
-    # emp_obj = Employee.get_by_id("abhiheg")
-    # try:
-    #     Employee.delete(emp_obj)
-    # except Exception as del_err:
-    #     pass
+
+    @classmethod
+    def setUpClass(cls):
+        with cls.app.app_context():
+            emp_obj = Employee.get_by_id("abhiheg")
+            try:
+                Employee.delete(emp_obj)
+            except Exception as del_err:
+                pass
 
     def test_1_config(self):
         self.assertTrue(self.app.config["DEBUG"])
