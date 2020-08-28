@@ -5,6 +5,8 @@ Logger Class that can be used in any of your application modules
 import logging
 import datetime
 import os
+from functools import wraps
+import time
 
 
 class Logger(object):
@@ -51,6 +53,19 @@ class Logger(object):
     @app_logger_obj.deleter
     def app_logger_obj(self):
         del self.logger_obj
+
+    def log_func_time(self, func):
+        @wraps(func)
+        def wrapper_time(*args, **kwargs):
+            start = time.time()
+            result = func(*args, **kwargs)
+            end = time.time()
+            self.logger_obj.debug(
+                "Called function '{}' with args '{}' took time '{}' s".format(func.__name__, (args, kwargs),
+                                                                              end - start))
+            return result
+
+        return wrapper_time
 
 
 logger_obj = Logger("my_logger")

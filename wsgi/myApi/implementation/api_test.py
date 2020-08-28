@@ -1,11 +1,11 @@
 from flask import jsonify, abort
-from wsgi.logger import app_logger
+from wsgi.logger import app_logger, logger_obj
 from wsgi.myApi.models import Employee
 from wsgi import db
 from flask import request
 import sqlalchemy
 
-
+@logger_obj.log_func_time
 def employees():
     if request.method == "GET":
         # Get All Employees
