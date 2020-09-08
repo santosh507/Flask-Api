@@ -4,6 +4,8 @@ from wsgi.myApi.models import Employee
 from wsgi import db
 from flask import request
 import sqlalchemy
+import requests
+
 
 @logger_obj.log_func_time
 def employees():
@@ -72,3 +74,18 @@ def employee(emp_id):
     # Employee.alter_raise(1.04)
     # emp1.apply_raise()
     # app_logger.info(emp1)
+
+
+def get_user():
+    resp_user = requests.get("https://reqres.in/api/users?page=2")
+    resp_unknown = requests.get("https://reqres.in/api/unknown")
+    total_page = resp_user.json()["total_pages"]
+    per_page = resp_user.json()["per_page"]
+    current_page = resp_user.json()["page"]
+    user_page = "Total user Pages {}, Per Page {}, Current page {}".format(resp_user.json()["total_pages"],
+                                                                           resp_user.json()["per_page"],
+                                                                           resp_user.json()["page"])
+    unknown = "Total unknown Pages {}, Per Page {}, Current page {}".format(resp_unknown.json()["total_pages"],
+                                                                            resp_unknown.json()["per_page"],
+                                                                            resp_unknown.json()["page"])
+    return user_page, unknown

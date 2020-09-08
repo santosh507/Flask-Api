@@ -9,4 +9,5 @@
 *.log
 *.db
 *.coverage
+*.scannerwork
 htmlcov/

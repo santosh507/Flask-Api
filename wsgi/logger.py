@@ -8,7 +8,6 @@ import os
 from functools import wraps
 import time
 
-
 class Logger(object):
     """
         Defines a logger instantiated with logger name and format.
